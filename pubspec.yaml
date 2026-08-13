@@ -1,0 +1,13 @@
+name: lesson_dart
+description: A starting point for Dart libraries or applications.
+version: 1.0.0
+publish_to: none # ← add this
+
+environment:
+  sdk: ">=3.12.2 <4.0.0"
+
+dependencies:
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.6

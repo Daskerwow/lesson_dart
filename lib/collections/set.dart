@@ -4,7 +4,7 @@ void main() {
   print('=== 1. КОНСТРУКТОРЫ (Constructors) ===');
 
   // Set() - Пустой набор (по умолчанию LinkedHashSet)
-  Set<int> emptySet = Set();
+  Set<int> emptySet = {};
   emptySet.add(1);
   print('Пустой Set + 1: $emptySet');
 
@@ -14,7 +14,7 @@ void main() {
   print('Set.from([1, 2, 2, 3]): $fromList');
 
   // Set.of(iterable) - Типобезопасное создание
-  Set<String> ofSet = Set.of(['a', 'b', 'a']);
+  Set<String> ofSet = {'a', 'b', 'a'};
   print('Set.of: $ofSet');
 
   // Set.identity() - Сравнение по ссылке (identity), а не по значению ==
@@ -139,7 +139,9 @@ void main() {
 
   // forEach
   print('forEach output: ');
-  data.forEach((x) => print('  Элемент: $x'));
+  for (var x in data) {
+    print('  Элемент: $x');
+  }
   // ВАЖНО: Внутри forEach нельзя делать data.add() или data.remove()!
 
   // map -> Iterable (не Set!)

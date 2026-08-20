@@ -40,9 +40,7 @@ class Circle extends Shape {
 class Squad implements Shape {
   ///
   @override
-  void draw() {
-    // TODO: implement draw
-  }
+  void draw() {}
 }
 
 /// base
@@ -76,9 +74,7 @@ interface class Printable {
   const Printable(this.name);
   final String name;
 
-  void printData() {
-    // TODO: implement printData
-  }
+  void printData() {}
 }
 
 class Prizma extends Printable {

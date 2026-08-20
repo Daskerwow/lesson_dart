@@ -24,8 +24,9 @@
  * и зарегистрировать функции обратного вызова, которые будут получать эти события. 
  * При вызове listen вы получаете объект [StreamSubscription], который является активным
  */
-
+// ignore: dangling_library_doc_comments
 ///
+//
 // stream_cheatsheet.dart
 //
 // Полный учебный файл по Stream в Dart.

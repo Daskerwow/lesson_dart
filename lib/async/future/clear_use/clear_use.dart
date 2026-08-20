@@ -35,7 +35,7 @@ void main() async {
   await demonstrateTestingPattern();
   await demonstrateCommonPitfalls();
 
-  print('\n' + '═' * 60);
+  print('\n${'═' * 60}');
   print('✅ Все демонстрации завершены!');
   print('💡 Совет: комментируйте ненужные секции в main() для фокуса');
 }

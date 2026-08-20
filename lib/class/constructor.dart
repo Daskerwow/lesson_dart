@@ -251,24 +251,128 @@ class Maybe {
   }
 }
 
-// class User(final String name, final int age) {
-//   factory User.fromJson(Map<String, Object?> json) => 
-//       User(json['name'] as String, json['age'] as int);
-//   Map<String, Object?> toJson() => {'name': name, 'age': age};
-//   User copyWith({String? name, int? age}) => 
-//       User(name ?? this.name, age ?? this.age);
-// }
+// primaryConstructor
+// LongClassName() {}                          new() {}
+// LongClassName.name() {}                     new name() {}
+// const LongClassName();                      const new();
+// const LongClassName.name();                 const new name();
+// LongClassName(): this.other();              new(): this.other();
+// LongClassName.name(): this();               new name(): this();
+// const LongClassName(): this.other();        const new(): this.other();
+// const LongClassName.name(): this();         const new name(): this();
+// factory LongClassName() { ... }             factory() { ... }
+// factory LongClassName.name() { ... }        factory name() { ... }
+// factory LongClassName() = D;                factory() = D;
+// factory LongClassName.name() = D;           factory name() = D;
+// const factory LongClassName() = D;          const factory() = D;
+// const factory LongClassName.name() = D;     const factory name() = D;
 
+// самый простой синтаксис (var или final обязательны иначе поле не создается)
+// с пустым телом
+class Pointer(var int x, var int y);
 
-// Итоговая сводка (классификация)
+/// Инициализаторы
+class ScopingDemo(var String x, String suffix) {
+  // В инициализаторе поля, не являющемся поздним, 'x' обозначает параметр 'x'.
+  final String fieldAtDeclaration = x;
+  final String fieldInInitializer;
+  final String fieldInInitializerTwo;
+
+  // В списке инициализаторов 'x' обозначает параметр 'x'.
+  this : fieldInInitializer = x, fieldInInitializerTwo = x {
+    // (после this : В этой области имя параметра, такое как x, относится непосредственно к параметру конструктора.)
+
+    // Внутри тела функции 'x' обозначает переменную поле класса (this.x = this.x.toUpperCase()),
+    // поэтому присваивание ей значения обновляет поле.
+    x = x.toUpperCase();
+
+    // Параметр 'suffix' не создает никакого поля, поэтому он по-прежнему ссылается на параметр.
+    print('$x$suffix');
+  }
+}
+
+/// Тело конструктора
+class PointTwo(var int x, var int y) {
+  // Тело
+  this : assert(x >= 0 && y >= 0) {
+    print('PointTwo inicialized at ($x, $y)');
+  }
+}
+
+class UserTwo({required var String _name});
+
+/// Константный конструктор все поля обязатьельно final!
+class const User(final String name, final int age) {
+  /// Здесь обычное тело класса, где мы как обычно объявляем методы
+  /// и любые другие конструктора
+
+  // User. можно опустить
+  factory fromJson(Map<String, Object?> json) =>
+      User(json['name'] as String, json['age'] as int);
+
+  Map<String, Object?> toJson() => {'name': name, 'age': age};
+
+  User copyWith({String? name, int? age}) =>
+      User(name ?? this.name, age ?? this.age);
+}
+
+class const ConstPoint(final int x, final int y) {
+  final int z;
+
+  /// Нет блока тела: Наличие тела { ... } является ошибкой во время компиляции, даже если оно пусто.
+  /// Постоянный первичный конструктор может использовать только список инициализаторов,
+  /// за которым следует точка с запятой.
+  this : z = x + y;
+}
+
+/// Именованные первичный конструктор
+class PointNamed.custom(var int x, [var int? y]);
+
+/// Приватный
+class PointPrivate._(var int x);
+
+/// Наследование
+class const Personer(final String name, final int age);
+class const Employee(super.name, super.age, final String role) extends Personer;
+
+// Первичный конструктор в Enum
+enum Colors({required final String hex}) {
+  red(hex: '#FF0000'),
+  green(hex: '#00FF00'),
+  blue(hex: '#0000FF');
+}
+
+/// Ограничения при использовании первичного конструктора
+// - Объявление параметров не может быть поздним или внешним: поздние и внешние модификаторы не допускаются
+// по параметрам в заголовке основного конструктора. Чтобы использовать эти модификаторы, объявите поля в теле класса, как обычно.
+// - Столкновение имен: Объявление параметра в основном конструкторе
+// с тем же именем, что и метод или другое поле в теле класса приводит к ошибке во время компиляции.
+// - Нет назначений основным параметрам конструктора: Основные параметры конструктора доступны только для чтения в
+// области первичной инициализации. Назначение им (например, с x = 5 или x++) в инициализаторе поля или
+// списке инициализаторов основного конструктора является ошибкой во время компиляции.
+// - Двойная инициализация: Вы не можете инициализировать переменную экземпляра как в ее объявлении, так и в
+// списке инициализаторов основного конструктора (или в качестве формального параметра инициализации), даже если поле изменчиво
+// - Ограничения тела первичтного конструктора
+//   - Основная часть тела конструктора (этот блок) не может использовать модификаторы async, async* или sync*,
+//     и она не может использовать синтаксис выражения arrow (=>).
+//   - Вы не можете написать this блок, если заголовок класса не объявляет первичный конструктор.
+//   - Класс может иметь не более одной основной части тела конструктора.
+// - Первичные конструкторы класса Mixin должны быть тривиальными: класс mixin может объявить первичный
+// конструктор только в том случае, если он не имеет параметров, списка инициализаторов и тела.
+//
+// factory случай по краю метода: Если у вас есть метод с именем factory без возвращаемого типа (например, factory() {}),
+// компилятор разбирует его как заводской конструктор после отправки первичных конструкторов.
+// Убедитесь, что такие методы имеют явные типы возврата, чтобы избежать этого конфликта.
 
 /**
  * Генеративные: неименованные, именованные, const, redirecting, private, 
  * с initializer list и assert.
  * Factory: factory обычный (кэш/фабрика), redirecting factory, 
  * factory возвращающий подтип, factory возвращающий nullable.
+ * первичный
  * Параметры: позиционные обязательные, опциональные позиционные, 
  * именованные (с required/по умолчанию).
  * Наследование: super(...) в initializer list; const-super; forwarding/redirecting.
  * Шаблоны: singleton, value object с валидацией, кэширование, фабрика подтипов.
+ * 
  */

@@ -18,8 +18,7 @@ class GetUserUseCase {
       return Error(NetworkFailure(e.message));
     } on TimeoutException catch (e) {
       return Error(TimeoutFailure(e.message!));
-    } catch (e, _) {
-      // ✅ Используем _ для неиспользуемого stackTrace
+    } catch (e, s) {
       print('   🐛 Unexpected error: $e');
       return Error(UnknownFailure('Произошла непредвиденная ошибка'));
     }

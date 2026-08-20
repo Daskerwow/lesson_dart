@@ -99,7 +99,7 @@ abstract class Bloc<Event, State> extends BlocBase<State>
 
   void onError(Object error, StackTrace stackTrace) {}
 
-  void onTransition(transition) {}
+  void onTransition(Object transition) {}
 
   void emit(State state) {}
 }
@@ -110,9 +110,9 @@ class Transition {
     required this.event,
     required this.nextState,
   });
-  final currentState;
-  final event;
-  final nextState;
+  final Object? currentState;
+  final Object? event;
+  final Object? nextState;
 }
 
 class _Emitter<T> {

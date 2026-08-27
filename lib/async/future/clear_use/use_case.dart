@@ -18,7 +18,7 @@ class GetUserUseCase {
       return Error(NetworkFailure(e.message));
     } on TimeoutException catch (e) {
       return Error(TimeoutFailure(e.message!));
-    } catch (e, s) {
+    } catch (e, _) {
       print('   🐛 Unexpected error: $e');
       return Error(UnknownFailure('Произошла непредвиденная ошибка'));
     }

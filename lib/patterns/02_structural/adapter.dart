@@ -17,8 +17,10 @@
 ///   адаптеры приводят их к единому контракту.
 library;
 
+import 'package:meta/meta.dart';
+
 /// ЦЕЛЕВОЙ ИНТЕРФЕЙС (Target) — то, что ожидает наше приложение.
-abstract class AnalyticsService {
+abstract class const AnalyticsService() {
   void logEvent(String name, Map<String, Object?> params);
   void setUserId(String userId);
 }
@@ -26,7 +28,8 @@ abstract class AnalyticsService {
 // --- АДАПТИРУЕМЫЕ (Adaptee) сторонние SDK с чужими, несовместимыми API ---
 
 /// Пример стороннего SDK Firebase Analytics с собственным API.
-class FirebaseAnalyticsSdk {
+@immutable
+class const FirebaseAnalyticsSdk() {
   void logFirebaseEvent(String eventName, Map<String, dynamic> parameters) {
     print('[Firebase] event="$eventName" params=$parameters');
   }
@@ -37,7 +40,8 @@ class FirebaseAnalyticsSdk {
 }
 
 /// Пример другого стороннего SDK Mixpanel с ещё одним, другим API.
-class MixpanelSdk {
+@immutable
+class const MixpanelSdk() {
   void track(String event, {Map<String, dynamic>? properties}) {
     print('[Mixpanel] track "$event" props=${properties ?? {}}');
   }
@@ -49,10 +53,9 @@ class MixpanelSdk {
 
 /// АДАПТЕР для Firebase: приводит FirebaseAnalyticsSdk к интерфейсу
 /// AnalyticsService, ожидаемому приложением.
-class FirebaseAnalyticsAdapter implements AnalyticsService {
-  final FirebaseAnalyticsSdk _sdk;
-  const FirebaseAnalyticsAdapter(this._sdk);
-
+@immutable
+class const FirebaseAnalyticsAdapter(final FirebaseAnalyticsSdk _sdk)
+    implements AnalyticsService {
   @override
   void logEvent(String name, Map<String, Object?> params) {
     _sdk.logFirebaseEvent(name, params);
@@ -65,10 +68,9 @@ class FirebaseAnalyticsAdapter implements AnalyticsService {
 }
 
 /// АДАПТЕР для Mixpanel: та же роль, другой Adaptee.
-class MixpanelAdapter implements AnalyticsService {
-  final MixpanelSdk _sdk;
-  const MixpanelAdapter(this._sdk);
-
+@immutable
+class const MixpanelAdapter(final MixpanelSdk _sdk)
+    implements AnalyticsService {
   @override
   void logEvent(String name, Map<String, Object?> params) {
     _sdk.track(name, properties: params);
@@ -83,11 +85,9 @@ class MixpanelAdapter implements AnalyticsService {
 /// Композитный сервис: рассылает события во все подключённые аналитики
 /// одновременно через единый интерфейс — приложению не важно, сколько
 /// и какие именно SDK подключены "под капотом".
-class CompositeAnalyticsService implements AnalyticsService {
-  /// Создаем pool из адаптеров
-  final List<AnalyticsService> _services;
-  CompositeAnalyticsService(this._services);
-
+@immutable
+class const CompositeAnalyticsService(final List<AnalyticsService> _services)
+    implements AnalyticsService {
   @override
   void logEvent(String name, Map<String, Object?> params) {
     /// Каждый адаптер вызовет свой logEvent()
@@ -109,8 +109,8 @@ void main() {
   final analytics = CompositeAnalyticsService(
     /// Даем список адаптеров
     [
-      FirebaseAnalyticsAdapter(FirebaseAnalyticsSdk()),
-      MixpanelAdapter(MixpanelSdk()),
+      const FirebaseAnalyticsAdapter(FirebaseAnalyticsSdk()),
+      const MixpanelAdapter(MixpanelSdk()),
     ],
   );
 

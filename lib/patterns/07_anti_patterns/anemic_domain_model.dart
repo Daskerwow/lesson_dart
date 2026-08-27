@@ -33,13 +33,11 @@ library;
 // ============================================================================
 // ПЛОХО: анемичная модель — только данные, вся логика "снаружи".
 // ============================================================================
-class BankAccountAnemic {
-  String id;
-  double balance;
-  bool isFrozen;
-  BankAccountAnemic(this.id, this.balance, {this.isFrozen = false});
-  // Никакого поведения — просто набор публичных полей.
-}
+class BankAccountAnemic(
+  final String id,
+  var double balance, {
+  var bool isFrozen = false,
+});
 
 /// Вся бизнес-логика живёт в сервисе и манипулирует полями напрямую —
 /// НИЧТО не мешает другому месту в коде забыть проверку isFrozen
@@ -70,14 +68,11 @@ class BankAccountServiceAnemic {
 // и поведение живут ВМЕСТЕ, объект сам защищает свои инварианты.
 // Сравните с DDD-примером в 04_architectural/ddd.dart.
 // ============================================================================
-class BankAccountRich {
-  final String id;
-  double _balance; // приватное поле — изменяется ТОЛЬКО через методы!
+class BankAccountRich(final String id, double initialBalance) {
+  double _balance = initialBalance;
   bool _isFrozen;
 
-  BankAccountRich(this.id, double initialBalance)
-    : _balance = initialBalance,
-      _isFrozen = false;
+  this : _isFrozen = false;
 
   double get balance => _balance; // только чтение снаружи
 

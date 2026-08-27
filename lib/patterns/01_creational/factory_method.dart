@@ -17,13 +17,11 @@
 library;
 
 /// Транспортный объект
-class PaymentResult {
-  final bool success;
-  final String transactionId;
-  final String message;
-
-  const PaymentResult(this.success, this.transactionId, this.message);
-
+class const PaymentResult(
+  final bool success,
+  final String transactionId,
+  final String message,
+) {
   @override
   String toString() =>
       'PaymentResult(success: $success, id: $transactionId, "$message")';
@@ -35,10 +33,8 @@ abstract class PaymentProcessor {
 }
 
 /// Конкретный продукт: оплата картой.
-class CreditCardProcessor implements PaymentProcessor {
-  final String cardNumberMasked;
-  const CreditCardProcessor(this.cardNumberMasked);
-
+class const CreditCardProcessor(final String cardNumberMasked)
+    implements PaymentProcessor {
   @override
   Future<PaymentResult> pay(double amount, String currency) async {
     // В реальном проекте здесь был бы вызов Stripe/PayPal SDK и т.п.
@@ -52,10 +48,8 @@ class CreditCardProcessor implements PaymentProcessor {
 }
 
 /// Конкретный продукт: оплата криптовалютой.
-class CryptoProcessor implements PaymentProcessor {
-  final String walletAddress;
-  const CryptoProcessor(this.walletAddress);
-
+class const CryptoProcessor(final String walletAddress)
+    implements PaymentProcessor {
   @override
   Future<PaymentResult> pay(double amount, String currency) async {
     await Future.delayed(const Duration(milliseconds: 250));
@@ -68,10 +62,8 @@ class CryptoProcessor implements PaymentProcessor {
 }
 
 /// Конкретный продукт: банковский перевод.
-class BankTransferProcessor implements PaymentProcessor {
-  final String iban;
-  const BankTransferProcessor(this.iban);
-
+class const BankTransferProcessor(final String iban)
+    implements PaymentProcessor {
   @override
   Future<PaymentResult> pay(double amount, String currency) async {
     await Future.delayed(const Duration(milliseconds: 500));
@@ -88,9 +80,7 @@ class BankTransferProcessor implements PaymentProcessor {
 /// Объявляет фабричный метод `createProcessor`, который подклассы обязаны
 /// реализовать. Сам Creator не знает конкретных классов продуктов —
 /// он оперирует только абстракцией PaymentProcessor.
-abstract class PaymentGatewayCreator {
-  const PaymentGatewayCreator();
-
+abstract class const PaymentGatewayCreator() {
   /// Фабричный метод — точка расширения для наследников.
   PaymentProcessor createProcessor();
 
@@ -102,29 +92,19 @@ abstract class PaymentGatewayCreator {
   }
 }
 
-class CreditCardGateway extends PaymentGatewayCreator {
-  final String maskedCard;
-
-  const CreditCardGateway(this.maskedCard);
-
+class const CreditCardGateway(final String maskedCard)
+    extends PaymentGatewayCreator {
   @override
   PaymentProcessor createProcessor() => CreditCardProcessor(maskedCard);
 }
 
-class CryptoGateway extends PaymentGatewayCreator {
-  final String wallet;
-
-  const CryptoGateway(this.wallet);
-
+class const CryptoGateway(final String wallet) extends PaymentGatewayCreator {
   @override
   PaymentProcessor createProcessor() => CryptoProcessor(wallet);
 }
 
-class BankTransferGateway extends PaymentGatewayCreator {
-  final String iban;
-
-  const BankTransferGateway(this.iban);
-
+class const BankTransferGateway(final String iban)
+    extends PaymentGatewayCreator {
   @override
   PaymentProcessor createProcessor() => BankTransferProcessor(iban);
 }
@@ -138,15 +118,15 @@ enum PaymentMethod { creditCard, crypto, bankTransfer }
 class PaymentGatewayFactory {
   static PaymentGatewayCreator create(
     PaymentMethod method,
-    Map<String, String> params,
+    Map<PaymentMethod, String> params,
   ) {
     switch (method) {
       case .creditCard:
-        return CreditCardGateway(params['card']!);
+        return CreditCardGateway(params[PaymentMethod.creditCard]!);
       case .crypto:
-        return CryptoGateway(params['wallet']!);
+        return CryptoGateway(params[PaymentMethod.crypto]!);
       case .bankTransfer:
-        return BankTransferGateway(params['iban']!);
+        return BankTransferGateway(params[PaymentMethod.bankTransfer]!);
     }
   }
 }
@@ -160,15 +140,10 @@ abstract interface class Logger {
 
 /// --- КОНКРЕТНЫЕ ПРОДУКТЫ ---
 /// Реализация логгера для отправки данных на удаленный сервер аналитики.
-class RemoteAnalyticsLogger implements Logger {
-  final Uri apiEndpoint;
-  final String apiKey;
-
-  const RemoteAnalyticsLogger({
-    required this.apiEndpoint,
-    required this.apiKey,
-  });
-
+class const RemoteAnalyticsLogger({
+  required final Uri apiEndpoint,
+  required final String apiKey,
+}) implements Logger {
   @override
   Future<void> log(String msg) async => print(
     // В реальном продакшене здесь было бы отправка HTTP-запроса
@@ -181,11 +156,8 @@ class RemoteAnalyticsLogger implements Logger {
 }
 
 /// Реализация логгера для записи логов в локальный файл.
-class LocalFileLogger implements Logger {
-  final String filePath;
-
-  const LocalFileLogger({required this.filePath});
-
+class const LocalFileLogger({required final String filePath})
+    implements Logger {
   @override
   Future<void> log(String msg) async {
     final timestamp = DateTime.now().toIso8601String();
@@ -201,11 +173,9 @@ class LocalFileLogger implements Logger {
 
 /// --- БАЗОВЫЙ КЛАСС СОЗДАТЕЛЯ (CREATOR) ---
 /// Объявляет фабричный метод, который должен возвращать объект класса Logger.
-abstract class LoggerConfigurationCreator {
+abstract class const LoggerConfigurationCreator() {
   /// Тот самый фабричный метод который будет создавать наб нужный логер
   Logger createLogger();
-
-  const LoggerConfigurationCreator();
 
   // Бизнес-логика, которая полагается на созданный продукт,
   // не зная его конкретной реализации.
@@ -219,23 +189,19 @@ abstract class LoggerConfigurationCreator {
 
 /// --- КОНКРЕТНЫЕ СОЗДАТЕЛИ (CONCRETE CREATORS) ---
 /// Фабрика для настройки удаленного логирования (например, для Production среды)
-class ProductionLoggerConfig extends LoggerConfigurationCreator {
-  final Uri _endpoint;
-  final String _token;
-
-  const ProductionLoggerConfig({required this._endpoint, required this._token});
-
+class const ProductionLoggerConfig({
+  required final Uri _endpoint,
+  required final String _token,
+}) extends LoggerConfigurationCreator {
   @override
   Logger createLogger() =>
       RemoteAnalyticsLogger(apiEndpoint: _endpoint, apiKey: _token);
 }
 
 /// Фабрика для локального логирования (например, для Dev/Staging среды)
-class DevelopmentLoggerConfig extends LoggerConfigurationCreator {
-  final String _logFileName;
-
-  const DevelopmentLoggerConfig({this._logFileName = 'dev_logs.txt'});
-
+class const DevelopmentLoggerConfig({
+  final String _logFileName = 'dev_logs.txt',
+}) extends LoggerConfigurationCreator {
   @override
   Logger createLogger() =>
       LocalFileLogger(filePath: '/var/log/app/$_logFileName');
@@ -266,7 +232,7 @@ void main() async {
 
   /// Пример с платежами
   final gateway = PaymentGatewayFactory.create(.creditCard, {
-    'card': '**** **** **** 4242',
+    PaymentMethod.creditCard: '**** **** **** 4242',
   });
 
   final result = await gateway.processPayment(149.99, 'USD');
@@ -274,7 +240,7 @@ void main() async {
   print(result);
 
   final cryptoGateway = PaymentGatewayFactory.create(.crypto, {
-    'wallet': 'bc1qxyz...',
+    PaymentMethod.crypto: 'bc1qxyz...',
   });
 
   print(await cryptoGateway.processPayment(0.005, 'BTC'));

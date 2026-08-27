@@ -34,23 +34,13 @@ library;
 // Типичный продакшен-кейс: конфиг читается один раз при старте приложения
 // (например, из .env или remote config) и переиспользуется везде.
 // -----------------------------------------------------------------------
-class AppConfig {
+class const AppConfig._internal({
+  required final String apiBaseUrl,
+  required final Duration networkTimeout,
+  required final bool isProduction,
+}) {
   // Приватный статический экземпляр — единственный на всё приложение.
   static AppConfig? _instance;
-
-  // Поля конфигурации. В реальном проекте — apiBaseUrl, флаги фич,
-  // таймауты сети и т.д.
-  final String apiBaseUrl;
-  final Duration networkTimeout;
-  final bool isProduction;
-
-  // Приватный именованный конструктор — снаружи создать объект напрямую
-  // невозможно (`AppConfig._internal(...)` недоступен вне библиотеки).
-  AppConfig._internal({
-    required this.apiBaseUrl,
-    required this.networkTimeout,
-    required this.isProduction,
-  });
 
   /// Единственный способ получить экземпляр. При первом вызове создаёт
   /// объект, при последующих — возвращает уже созданный.
@@ -58,20 +48,19 @@ class AppConfig {
   /// ВАЖНО: инициализация должна произойти один раз при старте приложения
   /// (обычно в main()), чтобы избежать состояния гонки при параллельном
   /// первом обращении из нескольких мест.
-  factory AppConfig.initialize({
+  factory initialize({
     required String apiBaseUrl,
     Duration networkTimeout = const Duration(seconds: 30),
     bool isProduction = false,
-  }) {
-    // Если уже инициализирован — просто возвращаем существующий,
-    // повторная инициализация игнорируется (иначе конфиг "плавал" бы
-    // в рантайме, что опасно).
-    return _instance ??= AppConfig._internal(
-      apiBaseUrl: apiBaseUrl,
-      networkTimeout: networkTimeout,
-      isProduction: isProduction,
-    );
-  }
+  }) =>
+      // Если уже инициализирован — просто возвращаем существующий,
+      // повторная инициализация игнорируется (иначе конфиг "плавал" бы
+      // в рантайме, что опасно).
+      _instance ??= AppConfig._internal(
+        apiBaseUrl: apiBaseUrl,
+        networkTimeout: networkTimeout,
+        isProduction: isProduction,
+      );
 
   /// Доступ к уже инициализированному конфигу из любой точки приложения.
   /// Бросает исключение, если конфиг ещё не был проинициализирован —
@@ -105,18 +94,16 @@ class AppConfig {
 // -----------------------------------------------------------------------
 enum LogLevel { debug, info, warning, error }
 
-class Logger {
+class Logger._internal() {
   // static final инициализируется лениво и ровно один раз в Dart —
   // это потокобезопасно в рамках одного изолята.
   static final Logger _instance = Logger._internal();
 
   final List<String> _buffer = [];
 
-  Logger._internal();
-
   /// factory-конструктор — при каждом `Logger()` возвращается один и тот же
   /// объект. Это самый идиоматичный способ Singleton в Dart.
-  factory Logger() => _instance;
+  factory() => _instance;
 
   void log(LogLevel level, String message) {
     final entry =
@@ -160,6 +147,8 @@ class _GetItImplementation implements GetIt {}
 
 // Пример из GetIt
 abstract class GetIt {
+  // static final инициализируется лениво и ровно один раз в Dart —
+  // это потокобезопасно в рамках одного изолята.
   static final GetIt _instance = _GetItImplementation();
 
   /// access to the Singleton instance of GetIt

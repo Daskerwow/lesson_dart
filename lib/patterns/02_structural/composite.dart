@@ -15,11 +15,11 @@
 ///   отрендерить, посчитать стоимость) рекурсивно ко всему дереву.
 library;
 
+import 'package:meta/meta.dart';
+
 /// Общий компонент — как "лист" (файл), так и "контейнер" (папка)
 /// реализуют один и тот же интерфейс.
-abstract class FileSystemEntry {
-  const FileSystemEntry();
-
+abstract class const FileSystemEntry() {
   String get name;
   int get sizeInBytes;
 
@@ -27,6 +27,7 @@ abstract class FileSystemEntry {
 }
 
 /// ЛИСТ (Leaf) — не имеет дочерних элементов.
+@immutable
 class FileEntry implements FileSystemEntry {
   @override
   final String name;

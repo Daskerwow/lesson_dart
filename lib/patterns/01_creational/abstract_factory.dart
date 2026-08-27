@@ -96,10 +96,7 @@ class CupertinoUiKitFactory implements UiKitFactory {
 /// Клиентский код работает ТОЛЬКО через абстракцию UiKitFactory и
 /// абстрактные продукты — он ничего не знает про Material или Cupertino.
 /// Это позволяет подменить всю "тему" одной строчкой при инициализации.
-class SettingsScreen {
-  final UiKitFactory factory;
-  const SettingsScreen(this.factory);
-
+class const SettingsScreen(final UiKitFactory factory) {
   String build() {
     /// Методы вызываются у конкретного типа объекта
     final button = factory.createButton();

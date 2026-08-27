@@ -26,10 +26,7 @@ abstract class Cloneable<T> {
 /// Вложенный объект — демонстрирует важность ГЛУБОКОГО копирования:
 /// если просто скопировать ссылку на Inventory, оба юнита будут делить
 /// один и тот же список предметов, что приведёт к трудноуловимым багам.
-class Inventory {
-  final List<String> items;
-  Inventory(this.items);
-
+class const Inventory(final List<String> items) {
   Inventory deepCopy() => Inventory(List<String>.from(items));
 
   @override
@@ -37,21 +34,13 @@ class Inventory {
 }
 
 /// Конкретный прототип: шаблон игрового юнита.
-class GameUnit implements Cloneable<GameUnit> {
-  final String type;
-  final int health;
-  final int damage;
-  final Inventory inventory;
-  final Map<String, double> position;
-
-  const GameUnit({
-    required this.type,
-    required this.health,
-    required this.damage,
-    required this.inventory,
-    required this.position,
-  });
-
+class const GameUnit({
+  required final String type,
+  required final int health,
+  required final int damage,
+  required final Inventory inventory,
+  required final Map<String, double> position,
+}) implements Cloneable<GameUnit> {
   /// Реализация клонирования — ключевой момент паттерна.
   /// ВАЖНО: делаем ГЛУБОКУЮ копию изменяемых полей (Inventory, position),
   /// иначе клон и оригинал будут делить одно и то же состояние.
@@ -78,9 +67,7 @@ class GameUnit implements Cloneable<GameUnit> {
 class UnitPrototypeRegistry {
   final Map<String, GameUnit> _prototypes = {};
 
-  void register(String key, GameUnit prototype) {
-    _prototypes[key] = prototype;
-  }
+  void register(String key, GameUnit prototype) => _prototypes[key] = prototype;
 
   /// Создаёт новый юнит клонированием зарегистрированного шаблона.
   GameUnit spawn(String key) {

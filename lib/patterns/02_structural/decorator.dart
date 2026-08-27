@@ -29,14 +29,10 @@ class HttpDataFetcher implements DataFetcher {
 }
 
 /// Базовый класс декоратора: хранит "обёрнутый" компонент.
-abstract class DataFetcherDecorator implements DataFetcher {
-  final DataFetcher wrapped;
-  const DataFetcherDecorator(this.wrapped);
-}
+abstract class const DataFetcherDecorator(final DataFetcher wrapped)
+    implements DataFetcher {}
 
-class LoggingDecorator extends DataFetcherDecorator {
-  const LoggingDecorator(super.wrapped);
-
+class const LoggingDecorator(super.wrapped) extends DataFetcherDecorator {
   @override
   Future<String> fetch(String url) async {
     print('[LOG] -> Запрос: $url');
@@ -48,9 +44,8 @@ class LoggingDecorator extends DataFetcherDecorator {
   }
 }
 
-class CachingDecorator extends DataFetcherDecorator {
+class CachingDecorator(super.wrapped) extends DataFetcherDecorator {
   final Map<String, String> _cache = {};
-  CachingDecorator(super.wrapped);
 
   @override
   Future<String> fetch(String url) async {
@@ -71,10 +66,8 @@ class CachingDecorator extends DataFetcherDecorator {
   }
 }
 
-class RetryDecorator extends DataFetcherDecorator {
-  final int maxAttempts;
-  const RetryDecorator(super.wrapped, {this.maxAttempts = 3});
-
+class const RetryDecorator(super.wrapped, {final int maxAttempts = 3})
+    extends DataFetcherDecorator {
   @override
   Future<String> fetch(String url) async {
     Object? lastError;

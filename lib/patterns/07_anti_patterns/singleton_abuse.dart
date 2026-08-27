@@ -31,9 +31,8 @@ library;
 // обращаются откуда угодно — типичный "Service Locator" антипаттерн,
 // часто сопутствующий злоупотреблению Singleton.
 // ============================================================================
-class GlobalAppState {
+class GlobalAppState._() {
   static final GlobalAppState instance = GlobalAppState._();
-  GlobalAppState._();
 
   String? currentUserId;
   double cartTotal = 0;
@@ -65,26 +64,17 @@ class CheckoutServiceBad {
 
 /// Вместо глобального мутабельного состояния — явная, неизменяемая
 /// модель корзины, передаваемая туда, где она нужна.
-class Cart {
-  final List<String> items;
-  final double total;
-  const Cart({required this.items, required this.total});
-}
+class const Cart({
+  required final List<String> items,
+  required final double total,
+});
 
-class UserSession {
-  final String userId;
-  const UserSession(this.userId);
-}
+class const UserSession(final String userId);
 
-class CheckoutServiceGood {
-  // Зависимости ЯВНО объявлены в конструкторе — их видно сразу, их легко
-  // подменить в тестах на fake-данные, не трогая никакого глобального
-  // состояния и не боясь "утечки" состояния между тестами.
-  final Cart cart;
-  final UserSession session;
-
-  CheckoutServiceGood({required this.cart, required this.session});
-
+class CheckoutServiceGood({
+  required final Cart cart,
+  required final UserSession session,
+}) {
   double calculateTotal() {
     // Никакого обращения к глобальному Singleton — все данные уже здесь.
     return cart.total;

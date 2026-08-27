@@ -49,7 +49,7 @@ class HttpRequest {
 ///
 /// Каждый setter возвращает `this` — это позволяет использовать
 /// fluent-интерфейс: builder.setX().setY().build().
-class HttpRequestBuilder {
+class HttpRequestBuilder(String baseUrl) {
   String _method = 'GET';
   late Uri _baseUrl;
   final Map<String, String> _headers = {};
@@ -57,9 +57,7 @@ class HttpRequestBuilder {
   Object? _body;
   Duration _timeout = const Duration(seconds: 30);
 
-  HttpRequestBuilder(String baseUrl) {
-    _baseUrl = Uri.parse(baseUrl);
-  }
+  this : _baseUrl = Uri.parse(baseUrl);
 
   HttpRequestBuilder method(String method) {
     _method = method;

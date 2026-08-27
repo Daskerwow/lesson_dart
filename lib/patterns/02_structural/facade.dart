@@ -30,7 +30,7 @@ class InventoryService {
 class PaymentService {
   bool charge(String customerId, double amount) {
     print('[Payment] Списываем \$${amount.toStringAsFixed(2)} с $customerId');
-    return true;
+    return true; // упрощённо: всегда есть деньги
   }
 }
 
@@ -54,7 +54,7 @@ class NotificationService {
 class FraudCheckService {
   bool isSafe(String customerId, double amount) {
     print('[Fraud] Проверка $customerId на сумму \$$amount... OK');
-    return true;
+    return true; // упрощённо: оплата всегда проходит
   }
 }
 

@@ -19,27 +19,29 @@
 ///
 library;
 
+import 'package:meta/meta.dart';
+
 /// РЕАЛИЗАЦИЯ (Implementor) — интерфейс канала доставки сообщений.
-abstract class MessageChannel {
+abstract class const MessageChannel() {
   Future<void> send(String recipient, String subject, String body);
 }
 
 /// Реализация Транспорта Сообщений
-class EmailChannel implements MessageChannel {
+class const EmailChannel() implements MessageChannel {
   @override
   Future<void> send(String recipient, String subject, String body) async {
     print('EMAIL -> $recipient\nТема: $subject\n$body\n');
   }
 }
 
-class SmsChannel implements MessageChannel {
+class const SmsChannel() implements MessageChannel {
   @override
   Future<void> send(String recipient, String subject, String body) async {
     print('SMS -> $recipient\n$subject: $body\n');
   }
 }
 
-class PushChannel implements MessageChannel {
+class const PushChannel() implements MessageChannel {
   @override
   Future<void> send(String recipient, String subject, String body) async {
     print('PUSH -> device:$recipient\n$subject | $body\n');
@@ -49,34 +51,32 @@ class PushChannel implements MessageChannel {
 /// АБСТРАКЦИЯ (Abstraction) — типы уведомлений.
 /// Хранит ССЫЛКУ на реализацию (MessageChannel) вместо наследования от конкретного канала —
 /// это и есть "мост" между двумя иерархиями.
-abstract class Notification {
-  /// channel -> это Мост (связь) через интерфейс
-  final MessageChannel channel;
-  const Notification(this.channel);
-
+/// channel -> это Мост (связь) через интерфейс
+///
+/// А это абстрактный класс а не интерфейс что бы мы могли наследоваться от него
+@immutable
+abstract class const Notification(final MessageChannel channel) {
   Future<void> notify(String recipient, String message);
 }
 
-class RegularNotification extends Notification {
-  const RegularNotification(super.channel);
-
+/// Здесь мы наследуемся а не реализуем интерфейс
+@immutable
+class const RegularNotification(super.channel) extends Notification {
   @override
   Future<void> notify(String recipient, String message) =>
       channel.send(recipient, 'Уведомление', message);
 }
 
-class UrgentNotification extends Notification {
-  const UrgentNotification(super.channel);
-
+@immutable
+class const UrgentNotification(super.channel) extends Notification {
   @override
   Future<void> notify(String recipient, String message) =>
       channel.send(recipient, 'СРОЧНО', message.toUpperCase());
 }
 
-class PromoNotification extends Notification {
-  final String promoCode;
-  const PromoNotification(super.channel, this.promoCode);
-
+@immutable
+class const PromoNotification(super.channel, final String promoCode)
+    extends Notification {
   @override
   Future<void> notify(String recipient, String message) => channel.send(
     recipient,

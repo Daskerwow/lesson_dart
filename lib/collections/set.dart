@@ -14,9 +14,9 @@ void main() {
   print('Set.from([1, 2, 2, 3]): $fromList');
 
   // Set.of(iterable) - Типобезопасное создание
-  Set<String> ofSet = {'a', 'b', 'a'};
-  print('Set.of: $ofSet');
 
+  Set<String> ofSet = {'a', 'b'};
+  print('Set.of: $ofSet');
   // Set.identity() - Сравнение по ссылке (identity), а не по значению ==
   // Полезно, если нужны разные объекты с одинаковым содержимым
   Set<List<int>> identitySet = Set.identity();

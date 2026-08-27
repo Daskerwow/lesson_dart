@@ -1,8 +1,8 @@
-import '../entities/data_page.dart';
+import '../entities/page_data.dart';
 
 /// Единственная точка доступа к HTTP-ресурсу.
 abstract interface class const ApiRepository<T>() {
-  Future<DataPage<T>> fetchPage({required int offset, required int limit});
+  Future<PageData<T>> fetchPage({required int offset, required int limit});
   Future<T> fetchAll();
   Future<T> findById(int id);
   Future<List<T>> createMony(List<Map<String, Object?>> payload);

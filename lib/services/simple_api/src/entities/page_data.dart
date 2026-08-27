@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 
 /// Одна страница списка новостей — сырой результат запроса, ещё не привязан
 /// к [NewsListState] (это забота репозитория/команд).
-final class const DataPage<T>({
+final class const PageData<T>({
   required final List<T> items,
   required final int total,
   required final int limit,

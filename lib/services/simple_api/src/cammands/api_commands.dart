@@ -6,10 +6,10 @@ import 'package:lesson_dart/services/simple_api/simple_api.dart';
 /// Ошибка НЕ пробрасывается наружу — она оседает в `state.error`, а не рушит
 /// весь `AsyncValue` (иначе пропал бы уже показанный список).
 Future<void> _runLoad<T>(
-  StateReader<StateDataList<T>> reader,
-  StateWriter<StateDataList<T>> writer,
-  DataListStatus loadingStatus,
-  Future<StateDataList<T>> Function(StateDataList<T> current) load,
+  StateReader<ApiDataState<T>> reader,
+  StateWriter<ApiDataState<T>> writer,
+  ApiDataStatus loadingStatus,
+  Future<ApiDataState<T>> Function(ApiDataState<T> current) load,
 ) async {
   writer.commit(
     reader.current.copyWith(status: loadingStatus, clearError: true),
@@ -26,11 +26,11 @@ Future<void> _runLoad<T>(
 /// Дозагружает следующую порцию и добавляет её в конец списка
 /// (бесконечный скролл).
 final class const LoadMoreCommand<T>(final ApiRepository<T> _repository)
-    implements AsyncCommand<StateDataList<T>> {
+    implements AsyncCommand<ApiDataState<T>> {
   @override
   Future<void> execute(
-    StateReader<StateDataList<T>> reader,
-    StateWriter<StateDataList<T>> writer,
+    StateReader<ApiDataState<T>> reader,
+    StateWriter<ApiDataState<T>> writer,
   ) async {
     if (reader.current.isLoading || reader.current.isLoadingMore) return;
     if (!reader.current.hasMore) return;
@@ -60,11 +60,11 @@ final class const LoadMoreCommand<T>(final ApiRepository<T> _repository)
 final class const GoToPageCommand<T>(
   final int page,
   final ApiRepository<T> _repository,
-) implements AsyncCommand<StateDataList<T>> {
+) implements AsyncCommand<ApiDataState<T>> {
   @override
   Future<void> execute(
-    StateReader<StateDataList<T>> reader,
-    StateWriter<StateDataList<T>> writer,
+    StateReader<ApiDataState<T>> reader,
+    StateWriter<ApiDataState<T>> writer,
   ) async {
     if (page < 1) return;
     if (reader.current.isLoading || reader.current.isLoadingMore) return;
@@ -91,11 +91,11 @@ final class const GoToPageCommand<T>(
 /// Тихий рефреш текущей страницы (pull-to-refresh) — список остаётся на
 /// экране, пока идёт загрузка.
 final class const ManualRefreshCommand<T>(final ApiRepository<T> _repository)
-    implements AsyncCommand<StateDataList<T>> {
+    implements AsyncCommand<ApiDataState<T>> {
   @override
   Future<void> execute(
-    StateReader<StateDataList<T>> reader,
-    StateWriter<StateDataList<T>> writer,
+    StateReader<ApiDataState<T>> reader,
+    StateWriter<ApiDataState<T>> writer,
   ) async {
     if (reader.current.isLoading || reader.current.isLoadingMore) return;
 
@@ -123,11 +123,11 @@ final class const ManualRefreshCommand<T>(final ApiRepository<T> _repository)
 final class const CreateCommand<T>(
   final ApiRepository<T> _repository,
   final Map<String, Object?> payload,
-) implements AsyncCommand<StateDataList<T>> {
+) implements AsyncCommand<ApiDataState<T>> {
   @override
   Future<void> execute(
-    StateReader<StateDataList<T>> reader,
-    StateWriter<StateDataList<T>> writer,
+    StateReader<ApiDataState<T>> reader,
+    StateWriter<ApiDataState<T>> writer,
   ) async {
     try {
       final created = await _repository.create(payload);
@@ -152,12 +152,12 @@ final class const CreateCommand<T>(
 final class const DeleteCommand<T>(
   final ApiRepository<T> _repository,
   final int id,
-  final bool Function(T) diff,
-) implements AsyncCommand<StateDataList<T>> {
+  final bool Function(T) equals,
+) implements AsyncCommand<ApiDataState<T>> {
   @override
   Future<void> execute(
-    StateReader<StateDataList<T>> reader,
-    StateWriter<StateDataList<T>> writer,
+    StateReader<ApiDataState<T>> reader,
+    StateWriter<ApiDataState<T>> writer,
   ) async {
     try {
       await _repository.deleteById(id);
@@ -166,7 +166,7 @@ final class const DeleteCommand<T>(
 
       writer.commit(
         fresh.copyWith(
-          items: fresh.items.where(diff).toList(),
+          items: fresh.items.where(equals).toList(),
           total: newTotal,
           clearError: true,
         ),
@@ -182,12 +182,12 @@ final class const EditCommand<T>(
   final ApiRepository<T> _repository,
   final int id,
   final Map<String, Object?> payload,
-  final bool Function(T) diff,
-) implements AsyncCommand<StateDataList<T>> {
+  final bool Function(T) equals,
+) implements AsyncCommand<ApiDataState<T>> {
   @override
   Future<void> execute(
-    StateReader<StateDataList<T>> reader,
-    StateWriter<StateDataList<T>> writer,
+    StateReader<ApiDataState<T>> reader,
+    StateWriter<ApiDataState<T>> writer,
   ) async {
     try {
       await _repository.editById(id, payload);
@@ -196,7 +196,7 @@ final class const EditCommand<T>(
 
       writer.commit(
         fresh.copyWith(
-          items: fresh.items.where(diff).toList(),
+          items: fresh.items.where(equals).toList(),
           total: newTotal,
           clearError: true,
         ),

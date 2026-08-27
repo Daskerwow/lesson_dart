@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 /// Статус загрузки списка новостей.
-enum DataListStatus { idle, loading, loadingMore, loaded, loadedAll, error }
+enum ApiDataStatus { idle, loading, loadingMore, loaded, loadedAll, error }
 
 /// Состояние списка новостей с offset/limit-пагинацией.
 ///
@@ -10,8 +10,8 @@ enum DataListStatus { idle, loading, loadingMore, loaded, loadedAll, error }
 /// (`setLoadingNext`/`setError`/`clearError`/`replace`/`reset`/...), которые
 /// на деле все делают одно и то же: пересобирают record с одним изменённым
 /// полем. Тут это просто `copyWith`, вычисляемые поля — геттеры.
-final class StateDataList<T> extends Equatable {
-  const StateDataList({
+final class ApiDataState<T> extends Equatable {
+  const ApiDataState({
     required this.items,
     required this.total,
     required this.offset,
@@ -31,7 +31,7 @@ final class StateDataList<T> extends Equatable {
   final int total;
   final int offset;
   final int limit;
-  final DataListStatus status;
+  final ApiDataStatus status;
   final Object? error;
 
   bool get isLoading => status == .loading;
@@ -46,15 +46,15 @@ final class StateDataList<T> extends Equatable {
   int get currentPage => limit == 0 ? 1 : (offset / limit).floor() + 1;
   int get totalPages => total == 0 || limit == 0 ? 1 : (total / limit).ceil();
 
-  StateDataList<T> copyWith({
+  ApiDataState<T> copyWith({
     List<T>? items,
     int? total,
     int? offset,
     int? limit,
-    DataListStatus? status,
+    ApiDataStatus? status,
     Object? error,
     bool clearError = false,
-  }) => StateDataList<T>(
+  }) => ApiDataState<T>(
     items: items ?? this.items,
     total: total ?? this.total,
     offset: offset ?? this.offset,
